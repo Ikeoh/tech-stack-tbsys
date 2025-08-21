@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack Tecnológica para Sistema Gerencial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-btn.active {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            font-weight: 600;
+        }
+
+        /* Simple animation for content fade in */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-slate-900">Guia Interativo da Stack Tecnológica</h1>
+            <p class="mt-2 text-lg text-slate-600">Recomendações para um Sistema Gerencial com Vue.js e Node.js</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="mb-8 border-b border-slate-200">
+            <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-slate-500">
+                <li class="mr-2">
+                    <button class="tab-btn inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-slate-600 hover:border-slate-300" data-tab="arquitetura">
+                        🏛️ Arquitetura
+                    </button>
+                </li>
+                <li class="mr-2">
+                    <button class="tab-btn inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-slate-600 hover:border-slate-300" data-tab="frontend">
+                        🎨 Frontend
+                    </button>
+                </li>
+                <li class="mr-2">
+                    <button class="tab-btn inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-slate-600 hover:border-slate-300" data-tab="backend">
+                        ⚙️ Backend
+                    </button>
+                </li>
+                <li>
+                    <button class="tab-btn inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-slate-600 hover:border-slate-300" data-tab="devops">
+                        🚀 DevOps
+                    </button>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Content Sections -->
+        <main>
+            <!-- Arquitetura Section -->
+            <section id="arquitetura" class="tab-content fade-in">
+                <h2 class="text-3xl font-bold mb-6 text-slate-900">Escolha da Arquitetura</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Monolito Modular -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-2xl font-semibold mb-3 text-blue-600">Monolito Modular</h3>
+                        <p class="mb-4 text-slate-600">Uma única aplicação, implantada como uma unidade, mas com o código-fonte organizado em módulos de negócio bem definidos. Ideal para iniciar projetos, pois simplifica o desenvolvimento e o deploy.</p>
+                        <div class="relative">
+                            <button onclick="copyCode('monolith-code')" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
+                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="monolith-code">meu-sistema-monolito/
+├── src/
+│   ├── modules/
+│   │   ├── auth/
+│   │   ├── users/
+│   │   ├── inventory/
+│   │   └── billing/
+│   ├── shared/
+│   ├── app.module.ts
+│   └── main.ts
+├── package.json
+└── Dockerfile
+</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Microserviços -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-2xl font-semibold mb-3 text-green-600">Microserviços</h3>
+                        <p class="mb-4 text-slate-600">O sistema é uma coleção de serviços autônomos e independentes, cada um focado em uma área de negócio. Permite deploy e escalabilidade independentes, mas aumenta a complexidade operacional.</p>
+                        <div class="relative">
+                            <button onclick="copyCode('microservices-code')" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
+                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="microservices-code">meu-sistema-microservicos/
+├── services/
+│   ├── auth-service/
+│   ├── user-service/
+│   ├── inventory-service/
+│   └── billing-service/
+├── api-gateway/
+└── docker-compose.yml
+</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recomendação -->
+                <div class="mt-10 bg-blue-100 border-l-4 border-blue-500 text-blue-800 p-6 rounded-r-lg shadow">
+                    <h3 class="text-2xl font-bold mb-2">⭐ Recomendação: Comece com um Monólito Modular</h3>
+                    <p>Para um novo projeto, a abordagem mais pragmática é iniciar com um monólito bem estruturado. Isso acelera o desenvolvimento inicial e reduz a complexidade. A chave é manter a disciplina modular, o que facilitará a extração de um módulo para um microserviço no futuro, se e quando for necessário. Essa abordagem evolutiva (Monolith-First) mitiga os riscos de uma complexidade prematura.</p>
+                </div>
+            </section>
+
+            <!-- Frontend Section -->
+            <section id="frontend" class="tab-content fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold mb-2 text-slate-900">Vue 3</h3>
+                        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-green-600 bg-green-200 mb-3">
+                            Core Framework
+                        </span>
+                        <p class="text-slate-600">
+                            <strong>O que é:</strong> A versão mais recente do popular framework progressivo JavaScript.
+                            <br><strong>Como funciona:</strong> Utiliza a Composition API para organizar a lógica em funções reutilizáveis (composables), melhorando a manutenibilidade de componentes complexos.
+                            <br><strong>Vantagens:</strong> Alta performance, excelente documentação e uma curva de aprendizado suave. Ideal para construir interfaces de usuário reativas e modernas.
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold mb-2 text-slate-900">TypeScript</h3>
+                        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-blue-600 bg-blue-200 mb-3">
+                            Linguagem / Superset
+                        </span>
+                        <p class="text-slate-600">
+                            <strong>O que é:</strong> Um superset do JavaScript que adiciona tipagem estática opcional.
+                            <br><strong>Como funciona:</strong> O código é escrito em TypeScript e transpilado para JavaScript. Com Vue 3, ele se integra nativamente, permitindo definir tipos para props, estado (Pinia), etc.
+                            <br><strong>Vantagens:</strong> Previne bugs, melhora o autocompletar do editor e torna o código mais manutenível. **Altamente recomendado para projetos grandes.**
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold mb-2 text-slate-900">Vite</h3>
+                        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-purple-600 bg-purple-200 mb-3">
+                            Build Tool
+                        </span>
+                        <p class="text-slate-600">
+                            <strong>O que é:</strong> Uma ferramenta de build moderna que serve o código via módulos ES nativos durante o desenvolvimento.
+                            <br><strong>Como funciona:</strong> Proporciona um servidor de desenvolvimento extremamente rápido com Hot Module Replacement (HMR) quase instantâneo.
+                            <br><strong>Vantagens:</strong> Velocidade de desenvolvimento incomparável, configuração simplificada e otimizações de build para produção.
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold mb-2 text-slate-900">Pinia</h3>
+                        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-yellow-600 bg-yellow-200 mb-3">
+                            Gerenciamento de Estado
+                        </span>
+                        <p class="text-slate-600">
+                            <strong>O que é:</strong> A biblioteca de gerenciamento de estado oficial e recomendada para Vue 3.
+                            <br><strong>Como funciona:</strong> Oferece um "store" centralizado para guardar dados que precisam ser compartilhados entre componentes.
+                            <br><strong>Vantagens:</strong> Leve, modular, com excelente suporte a TypeScript e uma experiência de desenvolvimento superior ao Vuex.
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold mb-2 text-slate-900">Quasar Framework</h3>
+                        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-indigo-600 bg-indigo-200 mb-3">
+                            Framework de UI Multiplataforma
+                        </span>
+                        <p class="text-slate-600">
+                            <strong>O que é:</strong> Um framework completo sobre o Vue.js, focado em "escrever o código uma vez e implantar em todos os lugares".
+                            <br><strong>Como funciona:</strong> Oferece um rico conjunto de componentes de UI que se adaptam automaticamente para web, mobile e desktop.
+                            <br><strong>Vantagens:</strong> A escolha ideal para projetos web e mobile. Economiza tempo e garante consistência visual e funcional entre as plataformas.
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold mb-2 text-slate-900">Vue Router</h3>
+                        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-red-600 bg-red-200 mb-3">
+                            Roteamento
+                        </span>
+                        <p class="text-slate-600">
+                            <strong>O que é:</strong> A biblioteca oficial para gerenciar as rotas da sua Single Page Application (SPA).
+                            <br><strong>Como funciona:</strong> Mapeia URLs do navegador para os componentes Vue correspondentes, permitindo a navegação sem recarregar o site.
+                            <br><strong>Vantagens:</strong> Integração perfeita com o ecossistema Vue, suporte a rotas aninhadas e lazy loading.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Backend Section -->
+            <section id="backend" class="tab-content fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold mb-2 text-slate-900">NestJS</h3>
+                        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-red-600 bg-red-200 mb-3">
+                            Framework Web
+                        </span>
+                        <p class="text-slate-600">
+                            <strong>O que é:</strong> Um framework Node.js para construir aplicações de backend eficientes e escaláveis.
+                            <br><strong>Como funciona:</strong> Utiliza TypeScript por padrão e uma arquitetura modular (Controllers, Services), promovendo uma organização de código robusta.
+                            <br><strong>Vantagens:</strong> Estrutura opinativa que guia para boas práticas, injeção de dependência nativa e excelente para aplicações corporativas.
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold mb-2 text-slate-900">PostgreSQL</h3>
+                        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-blue-600 bg-blue-200 mb-3">
+                            Banco de Dados
+                        </span>
+                        <p class="text-slate-600">
+                            <strong>O que é:</strong> Um sistema de gerenciamento de banco de dados relacional de código aberto, conhecido por sua robustez.
+                            <br><strong>Como funciona:</strong> Armazena dados em tabelas estruturadas com relacionamentos, garantindo a integridade e consistência dos dados.
+                            <br><strong>Vantagens:</strong> Confiabilidade, extensibilidade e um conjunto rico de funcionalidades avançadas, perfeito para sistemas gerenciais.
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold mb-2 text-slate-900">Prisma</h3>
+                        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-slate-600 bg-slate-200 mb-3">
+                            ORM / Query Builder
+                        </span>
+                        <p class="text-slate-600">
+                            <strong>O que é:</strong> Um ORM (Object-Relational Mapper) de nova geração para Node.js e TypeScript.
+                            <br><strong>Como funciona:</strong> Mapeia os modelos do seu banco de dados para objetos TypeScript, permitindo interagir com o banco de forma segura e intuitiva.
+                            <br><strong>Vantagens:</strong> Segurança de tipos de ponta a ponta (previne erros), autocompletar e uma API de consulta fluida.
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold mb-2 text-slate-900">Passport.js + JWT</h3>
+                        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-cyan-600 bg-cyan-200 mb-3">
+                            Autenticação
+                        </span>
+                        <p class="text-slate-600">
+                            <strong>O que é:</strong> Passport.js é um middleware de autenticação. JWT (JSON Web Token) é um padrão para criar tokens de acesso.
+                            <br><strong>Como funciona:</strong> O usuário faz login, o backend gera um JWT e o envia ao frontend. Cada requisição subsequente inclui esse token para provar a identidade.
+                            <br><strong>Vantagens:</strong> Abordagem stateless (sem sessão no servidor), modular e um padrão de mercado para proteger APIs.
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold mb-2 text-slate-900">Zod</h3>
+                        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-orange-600 bg-orange-200 mb-3">
+                            Validação de Dados
+                        </span>
+                        <p class="text-slate-600">
+                            <strong>O que é:</strong> Uma biblioteca de declaração e validação de esquemas com foco em TypeScript.
+                            <br><strong>Como funciona:</strong> Você define um "esquema" para a estrutura de dados esperada. O Zod então valida se os dados recebidos correspondem a esse esquema.
+                            <br><strong>Vantagens:</strong> Garante a integridade dos dados na entrada da sua API, previne erros e melhora a segurança.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DevOps Section -->
+            <section id="devops" class="tab-content fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold mb-2 text-slate-900">Docker</h3>
+                        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-sky-600 bg-sky-200 mb-3">
+                            Containerização
+                        </span>
+                        <p class="text-slate-600">
+                            <strong>O que é:</strong> Uma plataforma para desenvolver, enviar e executar aplicações em contêineres.
+                            <br><strong>Como funciona:</strong> Empacota a aplicação e todas as suas dependências em uma "imagem" que pode ser executada de forma consistente em qualquer ambiente.
+                            <br><strong>Vantagens:</strong> Elimina o "na minha máquina funciona", simplifica o deploy e garante a paridade entre ambientes.
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold mb-2 text-slate-900">Vitest</h3>
+                        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-lime-600 bg-lime-200 mb-3">
+                            Framework de Testes Unificado
+                        </span>
+                        <p class="text-slate-600">
+                            <strong>O que é:</strong> Um framework de testes unitários moderno e extremamente rápido, ideal para todo o ecossistema Vite.
+                            <br><strong>Como funciona:</strong> Permite criar e executar testes para o frontend (Quasar) e backend (NestJS) com uma única ferramenta, garantindo consistência.
+                            <br><strong>Vantagens:</strong> Unifica o processo de testes, simplifica o workflow da equipe e oferece performance superior, acelerando o ciclo de desenvolvimento.
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold mb-2 text-slate-900">ESLint + Prettier</h3>
+                        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-fuchsia-600 bg-fuchsia-200 mb-3">
+                            Linting e Formatação
+                        </span>
+                        <p class="text-slate-600">
+                            <strong>O que são:</strong> Ferramentas para manter a qualidade e a consistência do código.
+                            <br><strong>Como funcionam:</strong> ESLint analisa o código em busca de erros. Prettier formata o código automaticamente seguindo um padrão definido.
+                            <br><strong>Vantagens:</strong> Padronizam o estilo de código, evitam erros comuns e melhoram a legibilidade.
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll('.tab-btn');
+        const contents = document.querySelectorAll('.tab-content');
+
+        function showTab(tabId) {
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.tab === tabId) {
+                    tab.classList.add('active');
+                }
+            });
+
+            contents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === tabId) {
+                    content.classList.add('active');
+                }
+            });
+        }
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                showTab(tab.dataset.tab);
+            });
+        });
+
+        // Show the first tab by default
+        document.addEventListener('DOMContentLoaded', () => {
+            showTab('arquitetura');
+        });
+
+        // Copy to clipboard function
+        function copyCode(elementId) {
+            const codeEl = document.getElementById(elementId);
+            const text = codeEl.innerText;
+
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = text;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            // Optional: Show a temporary message
+            const originalButton = event.target;
+            originalButton.innerText = 'Copiado!';
+            setTimeout(() => {
+                originalButton.innerText = 'Copiar';
+            }, 1500);
+        }
+    </script>
+</body>
+
+</html>
