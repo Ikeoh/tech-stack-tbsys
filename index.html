@@ -50,13 +50,11 @@
 <body class="bg-slate-50 text-slate-800">
 
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-        <!-- Header -->
         <header class="text-center mb-8">
             <h1 class="text-4xl font-bold text-slate-900">Guia Interativo da Stack Tecnológica</h1>
             <p class="mt-2 text-lg text-slate-600">Recomendações para um Sistema Gerencial com Vue.js e Node.js</p>
         </header>
 
-        <!-- Navigation Tabs -->
         <nav class="mb-8 border-b border-slate-200">
             <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-slate-500">
                 <li class="mr-2">
@@ -82,13 +80,10 @@
             </ul>
         </nav>
 
-        <!-- Content Sections -->
         <main>
-            <!-- Arquitetura Section -->
             <section id="arquitetura" class="tab-content fade-in">
                 <h2 class="text-3xl font-bold mb-6 text-slate-900">Escolha da Arquitetura</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Monolito Modular -->
                     <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
                         <h3 class="text-2xl font-semibold mb-3 text-blue-600">Monolito Modular</h3>
                         <p class="mb-4 text-slate-600">Uma única aplicação, implantada como uma unidade, mas com o código-fonte organizado em módulos de negócio bem definidos. Ideal para iniciar projetos, pois simplifica o desenvolvimento e o deploy.</p>
@@ -110,7 +105,6 @@
                         </div>
                     </div>
 
-                    <!-- Microserviços -->
                     <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
                         <h3 class="text-2xl font-semibold mb-3 text-green-600">Microserviços</h3>
                         <p class="mb-4 text-slate-600">O sistema é uma coleção de serviços autônomos e independentes, cada um focado em uma área de negócio. Permite deploy e escalabilidade independentes, mas aumenta a complexidade operacional.</p>
@@ -129,14 +123,12 @@
                     </div>
                 </div>
 
-                <!-- Recomendação -->
                 <div class="mt-10 bg-blue-100 border-l-4 border-blue-500 text-blue-800 p-6 rounded-r-lg shadow">
                     <h3 class="text-2xl font-bold mb-2">⭐ Recomendação: Comece com um Monólito Modular</h3>
                     <p>Para um novo projeto, a abordagem mais pragmática é iniciar com um monólito bem estruturado. Isso acelera o desenvolvimento inicial e reduz a complexidade. A chave é manter a disciplina modular, o que facilitará a extração de um módulo para um microserviço no futuro, se e quando for necessário. Essa abordagem evolutiva (Monolith-First) mitiga os riscos de uma complexidade prematura.</p>
                 </div>
             </section>
 
-            <!-- Frontend Section -->
             <section id="frontend" class="tab-content fade-in">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
@@ -205,10 +197,31 @@
                             <br><strong>Vantagens:</strong> Integração perfeita com o ecossistema Vue, suporte a rotas aninhadas e lazy loading.
                         </p>
                     </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold mb-2 text-slate-900">Axios</h3>
+                        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200 mb-3">
+                            Cliente HTTP
+                        </span>
+                        <p class="text-slate-600">
+                            <strong>O que é:</strong> Um cliente HTTP baseado em Promises para navegador e node.js.
+                            <br><strong>Como funciona:</strong> Simplifica a realização de requisições a APIs (GET, POST, etc.), tratando a transformação de dados e erros de forma elegante.
+                            <br><strong>Vantagens:</strong> API fácil de usar, interceptadores para requisições/respostas, cancelamento de requisições e ampla compatibilidade.
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold mb-2 text-slate-900">Zod</h3>
+                        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-orange-600 bg-orange-200 mb-3">
+                            Validação de Dados
+                        </span>
+                        <p class="text-slate-600">
+                            <strong>O que é:</strong> Uma biblioteca de declaração e validação de esquemas com foco em TypeScript.
+                            <br><strong>Como funciona:</strong> Você define um esquema para a estrutura de dados esperada (ex: respostas de API, inputs de formulário) e o Zod valida se os dados correspondem.
+                            <br><strong>Vantagens:</strong> Garante a integridade dos dados que entram no frontend, melhora a segurança e se integra perfeitamente com TypeScript.
+                        </p>
+                    </div>
                 </div>
             </section>
 
-            <!-- Backend Section -->
             <section id="backend" class="tab-content fade-in">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
@@ -269,7 +282,6 @@
                 </div>
             </section>
 
-            <!-- DevOps Section -->
             <section id="devops" class="tab-content fade-in">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
