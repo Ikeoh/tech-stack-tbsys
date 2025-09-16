@@ -72,6 +72,11 @@
                         ⚙️ Backend
                     </button>
                 </li>
+                <li class="mr-2">
+                    <button class="tab-btn inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-slate-600 hover:border-slate-300" data-tab="autenticacao">
+                        🔑 Autenticação
+                    </button>
+                </li>
                 <li>
                     <button class="tab-btn inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-slate-600 hover:border-slate-300" data-tab="devops">
                         🚀 DevOps
@@ -88,7 +93,7 @@
                         <h3 class="text-2xl font-semibold mb-3 text-blue-600">Monolito Modular</h3>
                         <p class="mb-4 text-slate-600">Uma única aplicação, implantada como uma unidade, mas com o código-fonte organizado em módulos de negócio bem definidos. Ideal para iniciar projetos, pois simplifica o desenvolvimento e o deploy.</p>
                         <div class="relative">
-                            <button onclick="copyCode('monolith-code')" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
+                            <button onclick="copyCode('monolith-code', this)" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
                             <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="monolith-code">meu-sistema-monolito/
 ├── src/
 │   ├── modules/
@@ -109,7 +114,7 @@
                         <h3 class="text-2xl font-semibold mb-3 text-green-600">Microserviços</h3>
                         <p class="mb-4 text-slate-600">O sistema é uma coleção de serviços autônomos e independentes, cada um focado em uma área de negócio. Permite deploy e escalabilidade independentes, mas aumenta a complexidade operacional.</p>
                         <div class="relative">
-                            <button onclick="copyCode('microservices-code')" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
+                            <button onclick="copyCode('microservices-code', this)" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
                             <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="microservices-code">meu-sistema-microservicos/
 ├── services/
 │   ├── auth-service/
@@ -282,6 +287,130 @@
                 </div>
             </section>
 
+            <section id="autenticacao" class="tab-content fade-in">
+                <h2 class="text-3xl font-bold mb-2 text-slate-900">Lógica de Autenticação com JWT</h2>
+                <p class="mb-8 text-slate-600">Implementando um fluxo seguro com Access Tokens e Refresh Tokens.</p>
+
+                <div class="space-y-8">
+
+                    <!-- Passo 1: Registro -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-2xl font-semibold mb-3 text-slate-800">1. Registro de Usuário (Sign-Up)</h3>
+                        <p class="mb-4 text-slate-600">O processo inicia quando um novo usuário se cadastra. A senha nunca deve ser salva em texto puro.</p>
+                        <ul class="list-disc list-inside space-y-2 mb-4 text-slate-600">
+                            <li>O frontend envia `nome`, `email` e `password` para a API.</li>
+                            <li>O backend valida os dados (ex: com Zod) para garantir que estão no formato correto.</li>
+                            <li>A senha é "hasheada" usando uma biblioteca como o <strong>bcrypt</strong>. Isso a transforma em uma string irreversível.</li>
+                            <li>O novo usuário é salvo no banco de dados com a senha já hasheada.</li>
+                        </ul>
+                        <div class="relative">
+                            <button onclick="copyCode('signup-code', this)" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
+                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="signup-code">// Exemplo conceitual em um auth.service.ts (NestJS)
+import * as bcrypt from 'bcrypt';
+
+async create(createUserDto: CreateUserDto) {
+  const salt = await bcrypt.genSalt();
+  const hashedPassword = await bcrypt.hash(createUserDto.password, salt);
+  
+  return this.prisma.user.create({
+    data: {
+      ...createUserDto,
+      password: hashedPassword,
+    },
+  });
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Passo 2: Login -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-2xl font-semibold mb-3 text-slate-800">2. Login e Geração de Tokens (Sign-In)</h3>
+                        <p class="mb-4 text-slate-600">Após o login bem-sucedido, o backend gera dois tokens para o cliente.</p>
+                        <ul class="list-disc list-inside space-y-2 mb-4 text-slate-600">
+                            <li>O frontend envia `email` e `password`.</li>
+                            <li>O backend busca o usuário pelo email. Se não encontrar, retorna erro.</li>
+                            <li>Compara a senha enviada com a senha hasheada no banco usando <strong>bcrypt.compare()</strong>.</li>
+                            <li>Se a senha for válida, gera dois tokens JWT:
+                                <ul class="list-['-_'] list-inside ml-4 mt-1">
+                                    <li><strong>Access Token:</strong> Vida curta (ex: 15 minutos). Usado para acessar recursos protegidos.</li>
+                                    <li><strong>Refresh Token:</strong> Vida longa (ex: 7 dias). Usado apenas para obter um novo Access Token.</li>
+                                </ul>
+                            </li>
+                            <li>O backend retorna os dois tokens para o frontend.</li>
+                        </ul>
+                        <div class="relative">
+                            <button onclick="copyCode('signin-code', this)" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
+                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="signin-code">// Exemplo da resposta da API após login
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Passo 3: Armazenamento -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-2xl font-semibold mb-3 text-slate-800">3. Armazenamento Seguro dos Tokens</h3>
+                        <p class="mb-4 text-slate-600">A forma como os tokens são armazenados no frontend é crucial para a segurança.</p>
+                        <ul class="list-disc list-inside space-y-2 text-slate-600">
+                            <li><strong>Access Token:</strong> É seguro armazená-lo na memória da aplicação (ex: em um store do Pinia). Ele é enviado em cada requisição para a API no header `Authorization: Bearer <token>`.</li>
+                            <li><strong>Refresh Token:</strong> <strong>NÃO</strong> deve ser armazenado no `localStorage`. A melhor prática é armazená-lo em um <strong>cookie `HttpOnly`</strong>. Isso impede que scripts maliciosos (XSS) o acessem, pois ele só pode ser lido pelo servidor.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Passo 4: Protegendo Rotas -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-2xl font-semibold mb-3 text-slate-800">4. Acesso a Recursos Protegidos</h3>
+                        <p class="mb-4 text-slate-600">O `accessToken` é a chave para acessar dados restritos.</p>
+                        <ul class="list-disc list-inside space-y-2 mb-4 text-slate-600">
+                            <li>O frontend (com Axios Interceptor) anexa o `accessToken` a cada requisição para rotas protegidas.</li>
+                            <li>No backend (com um Guard do NestJS), a API verifica a validade e a expiração do token.</li>
+                            <li>Se o token for válido, a requisição prossegue. Caso contrário, a API retorna um erro `401 Unauthorized`.</li>
+                        </ul>
+                        <div class="relative">
+                            <button onclick="copyCode('guard-code', this)" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
+                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="guard-code">// Exemplo de como proteger um endpoint no NestJS
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from './jwt-auth.guard';
+
+@Controller('profile')
+export class ProfileController {
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  getProfile() {
+    // Este código só executa se o accessToken for válido
+    return { user: 'profile data' };
+  }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Passo 5: Renovação de Token -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-2xl font-semibold mb-3 text-slate-800">5. Renovação do Access Token</h3>
+                        <p class="mb-4 text-slate-600">Quando o `accessToken` expira (após 15 min, por exemplo), o sistema precisa obter um novo sem forçar o usuário a fazer login novamente.</p>
+                        <ul class="list-disc list-inside space-y-2 text-slate-600">
+                            <li>O frontend recebe o erro `401` da API.</li>
+                            <li>Ele então faz uma chamada para um endpoint específico, como `/auth/refresh`.</li>
+                            <li>Essa requisição envia o `refreshToken` (que estava no cookie `HttpOnly`) para o backend.</li>
+                            <li>O backend valida o `refreshToken`. Se for válido, gera e retorna um <strong>novo `accessToken`</strong>.</li>
+                            <li>O frontend substitui o `accessToken` antigo pelo novo e refaz a chamada original que falhou.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-10 bg-cyan-100 border-l-4 border-cyan-500 text-cyan-800 p-6 rounded-r-lg shadow">
+                    <h3 class="text-2xl font-bold mb-2">⭐ Boas Práticas de Segurança</h3>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Sempre hasheie senhas:</strong> Nunca armazene senhas como texto simples. Use `bcrypt`.</li>
+                        <li><strong>Use `HttpOnly` cookies para Refresh Tokens:</strong> Mitiga o risco de ataques XSS.</li>
+                        <li><strong>Mantenha Access Tokens com vida curta:</strong> Reduz a janela de oportunidade caso um token seja vazado.</li>
+                        <li><strong>Invalide Refresh Tokens no logout:</strong> Implemente uma lógica de logout no backend para invalidar o token de atualização (ex: adicionando a uma denylist).</li>
+                        <li><strong>Valide todos os inputs:</strong> Use bibliotecas como Zod ou `class-validator` no NestJS para garantir que os dados recebidos pela API estão corretos.</li>
+                    </ul>
+                </div>
+            </section>
+
             <section id="devops" class="tab-content fade-in">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
@@ -354,7 +483,7 @@
         });
 
         // Copy to clipboard function
-        function copyCode(elementId) {
+        function copyCode(elementId, buttonElement) {
             const codeEl = document.getElementById(elementId);
             const text = codeEl.innerText;
 
@@ -365,11 +494,10 @@
             document.execCommand('copy');
             document.body.removeChild(tempTextArea);
 
-            // Optional: Show a temporary message
-            const originalButton = event.target;
-            originalButton.innerText = 'Copiado!';
+            // Show a temporary message
+            buttonElement.innerText = 'Copiado!';
             setTimeout(() => {
-                originalButton.innerText = 'Copiar';
+                buttonElement.innerText = 'Copiar';
             }, 1500);
         }
     </script>
