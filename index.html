@@ -308,21 +308,29 @@
                             <li>A senha é "hasheada" usando uma biblioteca como o <strong>bcrypt</strong>. Isso a transforma em uma string irreversível.</li>
                             <li>O novo usuário é salvo no banco de dados com a senha já hasheada.</li>
                         </ul>
+                        <p class="text-sm font-mono mb-2 text-slate-500">src/auth/auth.service.ts</p>
                         <div class="relative">
                             <button onclick="copyCode('signup-code', this)" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
-                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="signup-code">// Exemplo conceitual em um auth.service.ts (NestJS)
-import * as bcrypt from 'bcrypt';
+                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="signup-code">import * as bcrypt from 'bcrypt';
+import { Injectable } from '@nestjs/common';
+// ... outras importações de seu serviço
 
-async create(createUserDto: CreateUserDto) {
-  const salt = await bcrypt.genSalt();
-  const hashedPassword = await bcrypt.hash(createUserDto.password, salt);
-  
-  return this.prisma.user.create({
-    data: {
-      ...createUserDto,
-      password: hashedPassword,
-    },
-  });
+@Injectable()
+export class AuthService {
+  // ... constructor e outros métodos
+
+  async create(createUserDto: CreateUserDto) {
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(createUserDto.password, salt);
+    
+    // Supondo que você tenha o prisma client injetado
+    return this.prisma.user.create({
+      data: {
+        ...createUserDto,
+        password: hashedPassword,
+      },
+    });
+  }
 }</code></pre>
                         </div>
                     </div>
@@ -345,8 +353,7 @@ async create(createUserDto: CreateUserDto) {
                         </ul>
                         <div class="relative">
                             <button onclick="copyCode('signin-code', this)" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
-                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="signin-code">// Exemplo da resposta da API após login
-{
+                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="signin-code">{
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }</code></pre>
@@ -372,11 +379,11 @@ async create(createUserDto: CreateUserDto) {
                             <li>No backend (com um Guard do NestJS), a API verifica a validade e a expiração do token.</li>
                             <li>Se o token for válido, a requisição prossegue. Caso contrário, a API retorna um erro `401 Unauthorized`.</li>
                         </ul>
+                        <p class="text-sm font-mono mb-2 text-slate-500">src/profile/profile.controller.ts</p>
                         <div class="relative">
                             <button onclick="copyCode('guard-code', this)" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
-                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="guard-code">// Exemplo de como proteger um endpoint no NestJS
-import { UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from './jwt-auth.guard';
+                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="guard-code">import { Controller, Get, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('profile')
 export class ProfileController {
@@ -446,24 +453,34 @@ export class ProfileController {
 
                         <h4 class="text-xl font-semibold mt-6 mb-2 text-slate-800">1. Incluir Permissões no Payload do JWT</h4>
                         <p class="mb-4 text-slate-600">Ao validar o login do usuário, o serviço de autenticação deve buscar todos os papéis e permissões associados e adicioná-los ao payload do `accessToken`.</p>
+                        <p class="text-sm font-mono mb-2 text-slate-500">src/auth/auth.service.ts</p>
                         <div class="relative">
                             <button onclick="copyCode('jwt-payload-code', this)" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
-                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="jwt-payload-code">// auth.service.ts
-async login(user: any) {
-  // 1. Lógica para buscar as permissões do usuário no DB...
-  const userPermissions = await this.usersService.findUserPermissions(user.id);
-  // Exemplo de retorno: ['settings:view', 'settings:user:view', ...]
+                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="jwt-payload-code">import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { UsersService } from '../users/users.service';
 
-  const payload = { 
-    username: user.username, 
-    sub: user.userId,
-    permissions: userPermissions // <--- AQUI
-  };
-  
-  return {
-    accessToken: this.jwtService.sign(payload),
-    // ... refreshToken
-  };
+@Injectable()
+export class AuthService {
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService
+  ) {}
+
+  async login(user: any) {
+    // Lógica para buscar as permissões do usuário no DB
+    const userPermissions = await this.usersService.findUserPermissions(user.id);
+    
+    const payload = { 
+      username: user.username, 
+      sub: user.id,
+      permissions: userPermissions
+    };
+    
+    return {
+      accessToken: this.jwtService.sign(payload),
+    };
+  }
 }</code></pre>
                         </div>
                     </div>
@@ -474,10 +491,10 @@ async login(user: any) {
 
                         <h4 class="text-xl font-semibold mt-6 mb-2 text-slate-800">Decorator para as permissões</h4>
                         <p class="mb-4 text-slate-600">Primeiro, criamos um decorator para facilitar a definição das permissões necessárias em cada rota.</p>
+                        <p class="text-sm font-mono mb-2 text-slate-500">src/auth/permissions.decorator.ts</p>
                         <div class="relative">
                             <button onclick="copyCode('decorator-code', this)" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
-                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="decorator-code">// permissions.decorator.ts
-import { SetMetadata } from '@nestjs/common';
+                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="decorator-code">import { SetMetadata } from '@nestjs/common';
 
 export const PERMISSIONS_KEY = 'permissions';
 export const RequirePermissions = (...permissions: string[]) => SetMetadata(PERMISSIONS_KEY, permissions);
@@ -485,9 +502,13 @@ export const RequirePermissions = (...permissions: string[]) => SetMetadata(PERM
                         </div>
 
                         <h4 class="text-xl font-semibold mt-6 mb-2 text-slate-800">Implementação do Guard</h4>
+                        <p class="text-sm font-mono mb-2 text-slate-500">src/auth/permissions.guard.ts</p>
                         <div class="relative">
                             <button onclick="copyCode('permissions-guard-code', this)" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
-                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="permissions-guard-code">// permissions.guard.ts
+                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="permissions-guard-code">import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { PERMISSIONS_KEY } from './permissions.decorator';
+
 @Injectable()
 export class PermissionsGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
@@ -499,11 +520,10 @@ export class PermissionsGuard implements CanActivate {
     ]);
 
     if (!requiredPermissions) {
-      return true; // Se não há permissões definidas, libera o acesso
+      return true;
     }
 
     const { user } = context.switchToHttp().getRequest();
-    // 'user' aqui é o payload do JWT decodificado
     return requiredPermissions.every((permission) => user.permissions?.includes(permission));
   }
 }</code></pre>
@@ -513,155 +533,33 @@ export class PermissionsGuard implements CanActivate {
                     <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
                         <h3 class="text-2xl font-semibold mb-3 text-slate-800">3. Usando o Guard para Proteger Rotas</h3>
                         <p class="mb-4 text-slate-600">Agora, basta aplicar o `JwtAuthGuard` (para garantir que o usuário está logado) e o nosso novo `PermissionsGuard` nos controllers, usando o decorator para especificar a permissão.</p>
+                        <p class="text-sm font-mono mb-2 text-slate-500">src/users/users.controller.ts</p>
                         <div class="relative">
                             <button onclick="copyCode('controller-guard-code', this)" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
-                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="controller-guard-code">// users.controller.ts
+                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="controller-guard-code">import { Controller, Post, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { UsersService } from './users/users.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { PermissionsGuard } from '../auth/permissions.guard';
+import { RequirePermissions } from '../auth/permissions.decorator';
+
 @Controller('users')
-@UseGuards(JwtAuthGuard, PermissionsGuard) // Aplica os guards
+@UseGuards(JwtAuthGuard, PermissionsGuard)
 export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @RequirePermissions('settings:user:create') // Define a permissão necessária
+  @RequirePermissions('settings:user:create')
   create(@Body() createUserDto: CreateUserDto) {
-    // Só entra aqui se o usuário tiver a permissão 'settings:user:create'
     return this.usersService.create(createUserDto);
   }
 
   @Delete(':id')
-  @RequirePermissions('settings:user:delete') // Outra permissão
+  @RequirePermissions('settings:user:delete')
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }
 }</code></pre>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-                        <h3 class="text-2xl font-semibold mb-3 text-slate-800">Implementação no Frontend (Vue.js / Quasar)</h3>
-                        <p class="mb-4 text-slate-600">Enquanto o backend garante a segurança, o frontend é responsável por criar uma experiência de usuário fluida, mostrando apenas as opções e rotas que o usuário logado tem permissão para acessar.</p>
-
-                        <h4 class="text-xl font-semibold mt-6 mb-2 text-slate-800">1. Decodificar o JWT e Armazenar Permissões</h4>
-                        <p class="mb-4 text-slate-600">Após o login, o `accessToken` deve ser decodificado para extrair a lista de permissões. Essa lista deve ser armazenada em um local central, como um store do Pinia.</p>
-                        <div class="relative">
-                            <button onclick="copyCode('pinia-store-code', this)" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
-                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="pinia-store-code">// stores/auth.ts
-import { defineStore } from 'pinia';
-import { jwtDecode } from 'jwt-decode'; // yarn add jwt-decode
-
-export const useAuthStore = defineStore('auth', {
-  state: () => ({
-    token: null,
-    permissions: [],
-  }),
-  actions: {
-    setToken(token) {
-      this.token = token;
-      if (token) {
-        const decoded = jwtDecode(token);
-        this.permissions = decoded.permissions || [];
-      } else {
-        this.permissions = [];
-      }
-    },
-  },
-  getters: {
-    hasPermission: (state) => (permissionName) => {
-      return state.permissions.includes(permissionName);
-    },
-  },
-});</code></pre>
-                        </div>
-
-                        <h4 class="text-xl font-semibold mt-6 mb-2 text-slate-800">2. Proteger Rotas de Navegação (Vue Router)</h4>
-                        <p class="mb-4 text-slate-600">Utilize os `navigation guards` do Vue Router para verificar as permissões. Primeiro, adicione uma propriedade `meta` às suas definições de rota para especificar a permissão necessária.</p>
-
-                        <div class="relative mt-4">
-                            <p class="text-sm font-mono mb-2 text-slate-500">// router/routes.js</p>
-                            <button onclick="copyCode('router-routes-code', this)" class="absolute top-8 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
-                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="router-routes-code">const routes = [
-  {
-    path: '/settings/users',
-    component: () => import('pages/UsersPage.vue'),
-    meta: { 
-      requiresAuth: true,
-      permission: 'settings:user:view' // Permissão necessária
-    }
-  }
-  // ... outras rotas
-];
-
-export default routes;</code></pre>
-                        </div>
-
-                        <p class="mt-6 mb-4 text-slate-600">Depois, no arquivo principal do roteador, implemente o `beforeEach` guard para verificar a permissão do usuário antes de cada navegação.</p>
-
-                        <div class="relative mt-4">
-                            <p class="text-sm font-mono mb-2 text-slate-500">// router/index.js</p>
-                            <button onclick="copyCode('router-index-code', this)" class="absolute top-8 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
-                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="router-index-code">import { createRouter, createWebHistory } from 'vue-router';
-import routes from './routes';
-import { useAuthStore } from 'stores/auth';
-
-const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
-  routes
-});
-
-router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore();
-  const requiredPermission = to.meta.permission;
-
-  if (requiredPermission && !authStore.hasPermission(requiredPermission)) {
-    // Idealmente, redirecionar para uma página de erro 403 (Forbidden)
-    next({ name: 'ErrorForbidden' }); 
-  } else {
-    next(); // Permite o acesso
-  }
-});
-
-export default router;</code></pre>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-                        <h3 class="text-2xl font-semibold mb-3 text-slate-800">3. Controlar Visibilidade de Elementos na UI</h3>
-                        <p class="mb-4 text-slate-600">A forma mais direta é usar `v-if` com a verificação do Pinia. Para uma abordagem mais limpa e reutilizável, pode-se criar uma diretiva Vue personalizada, como mostrado a seguir.</p>
-                        <div class="relative">
-                            <button onclick="copyCode('v-if-permission-code', this)" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
-                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="v-if-permission-code"><script setup>
-                                import { useAuthStore } from 'stores/auth';
-                                const authStore = useAuthStore();
-                            </script>
-
-<template>
-  <!-- Botão de criar só aparece se o usuário tiver a permissão -->
-  <q-btn 
-    v-if="authStore.hasPermission('settings:user:create')"
-    label="Criar Usuário" 
-    color="primary" 
-  />
-</template>
-</code></pre>
-                        </div>
-                        <h4 class="text-xl font-semibold mt-6 mb-2 text-slate-800">Abordagem Avançada: Diretiva `v-can`</h4>
-                        <p class="mb-4 text-slate-600">Criar uma diretiva personalizada como `v-can` ou `v-permission` abstrai a lógica e limpa os templates, tornando o código mais declarativo e fácil de ler. Após registrar a diretiva, o uso no template se torna muito mais simples.</p>
-                        <div class="relative">
-                            <button onclick="copyCode('v-can-usage-code', this)" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
-                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="v-can-usage-code"><template>
-  <!-- O botão só será renderizado se o usuário tiver a permissão -->
-  <q-btn 
-    v-can="'settings:user:create'"
-    label="Criar Usuário" 
-    color="primary" 
-  />
-
-  <q-btn 
-    v-can="'settings:user:delete'"
-    label="Deletar Usuário" 
-    color="negative" 
-  />
-</template>
-</code></pre>
                         </div>
                     </div>
 
