@@ -78,8 +78,13 @@
                     </button>
                 </li>
                 <li class="mr-2">
-                    <button class="tab-btn inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-slate-600 hover:border-slate-300" data-tab="rbac">
-                        🛡️ Controle de Acesso
+                    <button class="tab-btn inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-slate-600 hover:border-slate-300" data-tab="rbac-backend">
+                        🛡️ Acesso (Backend)
+                    </button>
+                </li>
+                <li class="mr-2">
+                    <button class="tab-btn inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-slate-600 hover:border-slate-300" data-tab="rbac-frontend">
+                        🔒 Acesso (Frontend)
                     </button>
                 </li>
                 <li>
@@ -423,8 +428,8 @@ export class ProfileController {
                 </div>
             </section>
 
-            <section id="rbac" class="tab-content fade-in">
-                <h2 class="text-3xl font-bold mb-2 text-slate-900">Controle de Acesso Baseado em Papéis (RBAC)</h2>
+            <section id="rbac-backend" class="tab-content fade-in">
+                <h2 class="text-3xl font-bold mb-2 text-slate-900">Controle de Acesso Baseado em Papéis (RBAC) no Backend</h2>
                 <p class="mb-8 text-slate-600">Uma estratégia granular e escalável para gerenciar o que cada usuário pode fazer no sistema.</p>
 
                 <div class="space-y-8">
@@ -474,7 +479,7 @@ export class AuthService {
     const payload = { 
       username: user.username, 
       sub: user.id,
-      permissions: userPermissions
+      permissions: userPermissions // Array de strings com as permissões
     };
     
     return {
@@ -520,10 +525,11 @@ export class PermissionsGuard implements CanActivate {
     ]);
 
     if (!requiredPermissions) {
-      return true;
+      return true; // Se nenhuma permissão é necessária, permite o acesso.
     }
 
     const { user } = context.switchToHttp().getRequest();
+    // Verifica se o array de permissões do usuário no JWT contém TODAS as permissões requeridas.
     return requiredPermissions.every((permission) => user.permissions?.includes(permission));
   }
 }</code></pre>
@@ -544,18 +550,18 @@ import { PermissionsGuard } from '../auth/permissions.guard';
 import { RequirePermissions } from '../auth/permissions.decorator';
 
 @Controller('users')
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(JwtAuthGuard, PermissionsGuard) // Aplica os guards em todo o controller
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @RequirePermissions('settings:user:create')
+  @RequirePermissions('settings:user:create') // Ação requer permissão específica
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   @Delete(':id')
-  @RequirePermissions('settings:user:delete')
+  @RequirePermissions('settings:user:delete') // Ação requer outra permissão
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }
@@ -565,12 +571,158 @@ export class UsersController {
 
                 </div>
                 <div class="mt-10 bg-purple-100 border-l-4 border-purple-500 text-purple-800 p-6 rounded-r-lg shadow">
-                    <h3 class="text-2xl font-bold mb-2">⭐ Boas Práticas para RBAC</h3>
+                    <h3 class="text-2xl font-bold mb-2">⭐ Boas Práticas para RBAC (Backend)</h3>
                     <ul class="list-disc list-inside space-y-1">
                         <li><strong>Princípio do Menor Privilégio:</strong> Sempre atribua o conjunto mínimo de permissões que um usuário precisa para realizar seu trabalho.</li>
                         <li><strong>Nomenclatura Consistente:</strong> Use um padrão claro para as permissões, como `recurso:ação` (ex: `users:create`, `reports:view`). Isso torna o sistema mais legível.</li>
                         <li><strong>Permissões no JWT:</strong> Evita consultas ao banco a cada requisição, melhorando drasticamente a performance.</li>
                         <li><strong>Flexibilidade:</strong> O modelo deve permitir a fácil criação de novos papéis e permissões sem a necessidade de alterar o código-fonte.</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <section id="rbac-frontend" class="tab-content fade-in">
+                <h2 class="text-3xl font-bold mb-2 text-slate-900">Controle de Acesso no Frontend (Vue.js)</h2>
+                <p class="mb-8 text-slate-600">Estratégias para refletir as permissões do backend na interface do usuário de forma reativa e segura.</p>
+
+                <div class="space-y-8">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-2xl font-semibold mb-3 text-slate-800">1. Decodificar o JWT e Armazenar Permissões</h3>
+                        <p class="mb-4 text-slate-600">Após o login, o `accessToken` recebido contém as permissões do usuário. O primeiro passo é extrair essas informações e torná-las disponíveis globalmente na aplicação usando um gerenciador de estado como o Pinia.</p>
+                        <ul class="list-disc list-inside space-y-2 mb-4 text-slate-600">
+                            <li>Use uma biblioteca leve como `jwt-decode` para ler o payload do token sem precisar validá-lo (a validação é responsabilidade do backend).</li>
+                            <li>Crie uma store no Pinia (`authStore`) para armazenar o estado de autenticação, informações do usuário e, crucialmente, a lista de suas permissões.</li>
+                            <li>Quando o usuário faz login, popule a store com os dados decodificados.</li>
+                        </ul>
+                        <p class="text-sm font-mono mb-2 text-slate-500">src/stores/auth.ts</p>
+                        <div class="relative">
+                            <button onclick="copyCode('pinia-store-code', this)" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
+                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="pinia-store-code">import { defineStore } from 'pinia';
+import { jwtDecode } from 'jwt-decode';
+
+export const useAuthStore = defineStore('auth', {
+  state: () => ({
+    token: null,
+    permissions: [],
+  }),
+  actions: {
+    login(accessToken) {
+      this.token = accessToken;
+      const decoded = jwtDecode(accessToken);
+      this.permissions = decoded.permissions || [];
+    },
+    logout() {
+      this.token = null;
+      this.permissions = [];
+    }
+  },
+  getters: {
+    hasPermission: (state) => (requiredPermission) => {
+      return state.permissions.includes(requiredPermission);
+    },
+  },
+});</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-2xl font-semibold mb-3 text-slate-800">2. Proteger Rotas com Navigation Guards</h3>
+                        <p class="mb-4 text-slate-600">Para impedir que um usuário acesse uma página inteira para a qual não tem permissão, usamos os "Navigation Guards" do Vue Router.</p>
+                         <ul class="list-disc list-inside space-y-2 mb-4 text-slate-600">
+                            <li>Adicione uma propriedade `meta` às definições de suas rotas para especificar qual permissão é necessária para acessá-la.</li>
+                            <li>Use `router.beforeEach` para criar um guarda global que é executado antes de cada navegação.</li>
+                            <li>Dentro do guarda, verifique se a rota de destino (`to`) exige uma permissão. Se exigir, verifique se o usuário (usando a store do Pinia) possui tal permissão.</li>
+                            <li>Se o usuário não tiver a permissão, redirecione-o para uma página de "Acesso Negado" ou para a página inicial.</li>
+                        </ul>
+                        <p class="text-sm font-mono mb-2 text-slate-500">src/router/index.ts</p>
+                        <div class="relative">
+                            <button onclick="copyCode('router-guard-code', this)" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
+                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="router-guard-code">import { createRouter, createWebHistory } from 'vue-router';
+import { useAuthStore } from '../stores/auth';
+
+const routes = [
+  {
+    path: '/settings/users',
+    component: () => import('../pages/UsersPage.vue'),
+    meta: { requiresAuth: true, permission: 'settings:user:view' } 
+  }
+];
+
+const router = createRouter({ history: createWebHistory(), routes });
+
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore();
+  const requiredPermission = to.meta.permission;
+
+  if (requiredPermission && !authStore.hasPermission(requiredPermission)) {
+    next({ name: 'AccessDenied' }); // ou next('/')
+  } else {
+    next();
+  }
+});
+
+export default router;
+</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-2xl font-semibold mb-3 text-slate-800">3. Controlar Visibilidade de Elementos com Diretiva Customizada</h3>
+                        <p class="mb-4 text-slate-600">A melhor prática para ocultar elementos da UI (como botões ou itens de menu) é criar uma diretiva Vue customizada. Isso mantém a lógica de permissão fora do template, tornando-o mais limpo e declarativo.</p>
+                        <p class="mb-4 text-slate-600">A diretiva (`v-can`) verificará se o usuário possui a permissão especificada. Se não possuir, o elemento será removido do DOM.</p>
+                        
+                        <p class="text-sm font-mono mb-2 text-slate-500">src/main.ts (ou um arquivo de plugin)</p>
+                         <div class="relative">
+                            <button onclick="copyCode('directive-code', this)" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
+                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="directive-code">import { createApp } from 'vue';
+import App from './App.vue';
+import { useAuthStore } from './stores/auth';
+
+const app = createApp(App);
+
+app.directive('can', (el, binding) => {
+  const authStore = useAuthStore();
+  const permission = binding.value;
+  
+  if (!authStore.hasPermission(permission)) {
+    // Remove o elemento do DOM se o usuário não tiver a permissão
+    el.parentNode?.removeChild(el);
+  }
+});
+
+app.mount('#app');
+</code></pre>
+                        </div>
+
+                        <h4 class="text-xl font-semibold mt-6 mb-2 text-slate-800">Exemplo de Uso no Template</h4>
+                        <p class="mb-4 text-slate-600">Com a diretiva registrada, usá-la nos componentes se torna trivial:</p>
+
+                        <div class="relative">
+                            <button onclick="copyCode('directive-usage-code', this)" class="absolute top-2 right-2 bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs hover:bg-slate-300">Copiar</button>
+                            <pre class="bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code id="directive-usage-code">&lt;template&gt;
+  &lt;div&gt;
+    &lt;h1&gt;Gerenciar Usuários&lt;/h1&gt;
+    
+    &lt;!-- Este botão só será renderizado se o usuário tiver a permissão 'settings:user:create' --&gt;
+    &lt;button v-can="'settings:user:create'"&gt;Adicionar Usuário&lt;/button&gt;
+    
+    &lt;table&gt;
+      &lt;!-- ... conteúdo da tabela ... --&gt;
+    &lt;/table&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-10 bg-emerald-100 border-l-4 border-emerald-500 text-emerald-800 p-6 rounded-r-lg shadow">
+                    <h3 class="text-2xl font-bold mb-2">⭐ Boas Práticas para RBAC (Frontend)</h3>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>O Backend é a Fonte da Verdade:</strong> O frontend apenas reflete o estado de permissão. Toda a lógica de segurança crítica e validação **deve** permanecer no backend.</li>
+                        <li><strong>Estado Centralizado é Essencial:</strong> Use Pinia (ou similar) para que qualquer componente possa reagir às permissões do usuário de forma consistente.</li>
+                        <li><strong>Combine Proteção de Rota e de UI:</strong> Proteger a rota impede o acesso, mas esconder o link/botão melhora a experiência do usuário. Faça ambos.</li>
+                        <li><strong>Use Diretivas para Limpeza:</strong> Diretivas como `v-can` mantêm os templates limpos e a lógica de verificação de permissão reutilizável e centralizada.</li>
                     </ul>
                 </div>
             </section>
@@ -637,27 +789,45 @@ export class UsersController {
 
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
-                showTab(tab.dataset.tab);
+                const tabId = tab.dataset.tab;
+                showTab(tabId);
+                // Update URL hash for better navigation and bookmarking.
+                // Wrapped in a try-catch to prevent security errors in sandboxed environments.
+                try {
+                    // Using replaceState is often safer than manipulating location.hash directly.
+                    history.replaceState(null, '', '#' + tabId);
+                } catch (e) {
+                    // Silently fail if the environment is too restrictive.
+                    console.log('Could not update URL hash due to security restrictions.');
+                }
             });
         });
-
-        // Show the first tab by default
-        document.addEventListener('DOMContentLoaded', () => {
+        
+        function showTabFromURL() {
+            const hash = window.location.hash.substring(1);
             const defaultTab = 'arquitetura';
-            const tabToSelect = document.querySelector(`.tab-btn[data-tab="${defaultTab}"]`);
+            const tabToShow = hash || defaultTab;
+            
+            const tabToSelect = document.querySelector(`.tab-btn[data-tab="${tabToShow}"]`);
+
             if (tabToSelect) {
-                showTab(defaultTab);
-                tabToSelect.classList.add('active');
+                showTab(tabToShow);
             } else if (tabs.length > 0) {
                 showTab(tabs[0].dataset.tab);
-                tabs[0].classList.add('active');
             }
-        });
+        }
+
+        // Show tab based on URL hash on page load
+        document.addEventListener('DOMContentLoaded', showTabFromURL);
+        
+        // Listen for hash changes to switch tabs
+        window.addEventListener('popstate', showTabFromURL);
+
 
         // Copy to clipboard function
         function copyCode(elementId, buttonElement) {
             const codeEl = document.getElementById(elementId);
-            const text = codeEl.textContent; // Use textContent for a more reliable copy
+            const text = codeEl.textContent;
 
             const tempTextArea = document.createElement('textarea');
             tempTextArea.value = text;
@@ -666,7 +836,6 @@ export class UsersController {
             document.execCommand('copy');
             document.body.removeChild(tempTextArea);
 
-            // Show a temporary message
             buttonElement.innerText = 'Copiado!';
             setTimeout(() => {
                 buttonElement.innerText = 'Copiar';
@@ -676,3 +845,5 @@ export class UsersController {
 </body>
 
 </html>
+
+
